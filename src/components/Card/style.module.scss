@@ -1,0 +1,35 @@
+.mainWrapper {
+  margin: 100px;
+  @media (max-width: 1280px) {
+    margin: 50px;
+  }
+  @media (max-width: 768px) {
+    margin: 20px;
+  }
+  .Labelheading {
+    margin: 50px 0;
+  }
+  .cardsWrapper {
+    width: 100%;
+    position: relative;
+    margin: 0;
+    .iconsWrapper {
+      background-color: #c93737;
+      z-index: 99;
+      bottom: 0;
+      display: flex;
+      justify-content: space-evenly;
+      position: absolute;
+      gap: 30px;
+      width: 100%;
+    }
+    .image {
+      color: white;
+      padding: 20px;
+      cursor: pointer;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.514);
+      }
+    }
+  }
+}
