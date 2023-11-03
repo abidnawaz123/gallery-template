@@ -8,9 +8,9 @@ import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOut
 
 const Cards = () => {
     const dispatch = useDispatch();
-    const apiData = useSelector((state) => state.api.data);
-    const loading = useSelector((state) => state.api.loading);
-    const error = useSelector((state) => state.api.error);
+    const apiData = useSelector(state => state.api.data);
+    const loading = useSelector(state => state.api.loading);
+    const error = useSelector(state => state.api.error);
 
     const fetchDataFromApi = async () => {
         try {
@@ -28,7 +28,9 @@ const Cards = () => {
 
     const handleDelete = async (id) => {
         dispatch(deleteApiData(id))
-        await fetchDataFromApi()
+        setTimeout(async()=>{
+            await fetchDataFromApi()
+        },1000)
     }
 
     const handleDownload = (id) => {
@@ -68,30 +70,31 @@ const Cards = () => {
         },
     ];
 
-    const fileSelectedHandler = (e) => {
-        // console.log('this is selected file-->>',e.target.value);
-
-        const file = e.target.value
+    const fileSelectedHandler =async (e) => {
+        const file = e.target.files[0];
         if (file) {
-            console.log('this is image -->',file)
-            dispatch(addApiData(
-                {
+            const reader = new FileReader();
+            // console.log('now this is reader 🤦‍♂️',reader)
+            reader.onload = async () => {
+                const dataUrl = reader.result;
+                dispatch(addApiData({
                     description: "Abid",
-                    url: file,
+                    url: dataUrl,
                     title: "Man whom woman produce may rule his man born choose few century",
                     id: Math.floor(Math.random()),
                     user: Math.random(),
-                },
-            )
-            );
+                }));
+            };
+            reader.readAsDataURL(file);
         }
-
     }
 
     return (
         <div className={styles.mainWrapper}>
             <h1 className={styles.Labelheading}>Unsplashed Gallery Design</h1>
-            <input type="file" multiple onChange={fileSelectedHandler} about='add image' />
+            <input type="file" multiple
+            onChange={fileSelectedHandler} 
+            about='add image' />
 
             {loading === 'loading' ? (
                 <div>Loading...</div>

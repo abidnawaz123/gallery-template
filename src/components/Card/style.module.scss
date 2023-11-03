@@ -20,12 +20,11 @@
       display: flex;
       justify-content: space-evenly;
       position: absolute;
-      gap: 30px;
       width: 100%;
     }
     .image {
       color: white;
-      padding: 20px;
+      padding: 20px 0;
       cursor: pointer;
       &:hover {
         background-color: rgba(0, 0, 0, 0.514);
