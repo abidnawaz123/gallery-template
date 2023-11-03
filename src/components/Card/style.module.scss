@@ -1,33 +1,43 @@
+.inputField {
+  width: 100%;
+  padding: 30px;
+  outline: none;
+  border-radius: 5px;
+  border: none;
+}
 .mainWrapper {
-  margin: 100px;
-  @media (max-width: 1280px) {
-    margin: 50px;
-  }
-  @media (max-width: 768px) {
-    margin: 20px;
+  margin: 50px;
+  :global(.ant-card-body) {
+    padding: 5px;
   }
   .Labelheading {
-    margin: 50px 0;
+    color: white;
   }
-  .cardsWrapper {
-    width: 100%;
-    position: relative;
-    margin: 0;
-    .iconsWrapper {
-      background-color: #c93737;
-      z-index: 99;
-      bottom: 0;
-      display: flex;
-      justify-content: space-evenly;
-      position: absolute;
-      width: 100%;
-    }
-    .image {
+  .heading {
+    display: flex;
+    align-items: center;
+    margin: 30px 0px;
+    flex-wrap: wrap;
+    h1 {
       color: white;
-      padding: 20px 0;
-      cursor: pointer;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.514);
+    }
+    .addimg {
+      margin: 30px;
+    }
+  }
+  .mainRow {
+    .cardBottom {
+      .bottomSection {
+        .iconsWrapper {
+          display: flex;
+          justify-content: space-evenly;
+          padding: 10px;
+          background: red;
+          border-radius: 5px;
+          .image {
+            color: white;
+          }
+        }
       }
     }
   }

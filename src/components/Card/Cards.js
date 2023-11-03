@@ -1,16 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApiData, deleteApiData, addApiData } from '../redux/apiSlice';
-import { Button, Col, Dropdown, Row, Upload } from 'antd';
+import { Alert, Badge, Button, Card, Col, Dropdown, Row, Upload } from 'antd';
 import sample1 from "../../assets/images/sample.png"
 import styles from "./style.module.scss"
 import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOutlined } from "@ant-design/icons"
 
 const Cards = () => {
+    const [cardSize, setCardSize] = useState("400px")
+    const [cardSequence, setCardSequence] = useState(false)
+    const [currCard, setCurrCard] = useState("")
+    const [listData, setListData] = useState(null)
+    const [inputValue, setInputValue] = useState("")
+
     const dispatch = useDispatch();
     const apiData = useSelector(state => state.api.data);
     const loading = useSelector(state => state.api.loading);
     const error = useSelector(state => state.api.error);
+
 
     const fetchDataFromApi = async () => {
         try {
@@ -28,10 +35,14 @@ const Cards = () => {
 
     const handleDelete = async (id) => {
         dispatch(deleteApiData(id))
-        setTimeout(async()=>{
+        setTimeout(async () => {
             await fetchDataFromApi()
-        },1000)
+        }, 1000)
     }
+
+    useEffect(() => {
+        setListData(apiData)
+    }, [])
 
     const handleDownload = (id) => {
         console.log('id is ->', id)
@@ -43,11 +54,25 @@ const Cards = () => {
     }
 
 
+    const smallCardSize = () => {
+        setCurrCard()
+        setCardSize("350px")
+        setCardSequence(true)
+    }
+
+    const mediumCardSize = () => {
+        setCardSize("400px")
+    }
+    const largeCardSize = () => {
+        setCardSize("450px")
+        setCardSequence(false)
+    }
+
     const items = [
         {
             key: '1',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                <a onClick={smallCardSize}>
                     small
                 </a>
             ),
@@ -55,7 +80,7 @@ const Cards = () => {
         {
             key: '2',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                <a onClick={mediumCardSize}>
                     medium
                 </a>
             ),
@@ -63,18 +88,31 @@ const Cards = () => {
         {
             key: '3',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
+                <a onClick={largeCardSize}>
                     large
                 </a>
             ),
         },
     ];
 
-    const fileSelectedHandler =async (e) => {
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1000) {
+                setCardSequence(false);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+
+    const fileSelectedHandler = async (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            // console.log('now this is reader 🤦‍♂️',reader)
             reader.onload = async () => {
                 const dataUrl = reader.result;
                 dispatch(addApiData({
@@ -86,54 +124,125 @@ const Cards = () => {
                 }));
             };
             reader.readAsDataURL(file);
+            setTimeout(async () => {
+                await dispatch(fetchApiData())
+            }, 1000)
         }
+    }
+    const openSetting = (id) => {
+        setCurrCard(id)
+    }
+
+    const handleChange = (e) => {
+        setInputValue(e.target.value)
+        const data = listData.filter((item, _) => {
+            return (
+                item.tag === inputValue
+            )
+        })
+        setListData(data)
+
+    }
+
+    // const handleSubmit = () => {
+    //     console.log('inputValue --', inputValue)
+    //     const data = listData.filter((item, _) => {
+    //         return (
+    //             item.tag === inputValue
+    //         )
+    //     })
+    //     setListData(data)
+    //     setInputValue("")
+    // }
+    const handleReset = ()=>{
+        setListData(apiData)
     }
 
     return (
-        <div className={styles.mainWrapper}>
-            <h1 className={styles.Labelheading}>Unsplashed Gallery Design</h1>
-            <input type="file" multiple
-            onChange={fileSelectedHandler} 
-            about='add image' />
-
-            {loading === 'loading' ? (
-                <div>Loading...</div>
-            ) : loading === 'failed' ? (
-                <div>Error: {error}</div>
-            ) : (
-                <div>
-                    <Row gutter={[60, 60]} className={styles.mainRow}>
-                        {
-                            apiData.length && apiData?.map((item) => (
-                                <Col xs={24} sm={12} md={8} key={item.id}>
-                                    <div className={styles.cardsWrapper}>
-                                        <img src={item.url ? item.url : sample1} alt="img" height="100%" width="100%" style={{ boxShadow: "0px 2px 10px 2px black", borderRadius: 5 }} />
-                                        <div className={styles.iconsWrapper}>
-                                            <MoneyCollectOutlined className={styles.image} style={{ fontSize: 30 }} />
-                                            {/* <a href="#" download={item.url}>download</a> */}
-
-                                            <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} style={{ fontSize: 30 }} />
-                                            <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} style={{ fontSize: 30 }} />
-                                            <Dropdown
-                                                menu={{
-                                                    items,
-                                                }}
-                                                placement="topLeft"
-                                                arrow={{
-                                                    pointAtCenter: true,
-                                                }}
-                                            >
-                                                <button style={{ backgroundColor: "#c93737", border: 'none' }} ><SettingOutlined className={styles.image} style={{ fontSize: 30 }} /></button >
-                                            </Dropdown>
-                                        </div>
-                                    </div>
-                                </Col>
-                            ))}
-                    </Row>
+        <>
+            <input type='text' className={styles.inputField} name='ONE' value={inputValue} placeholder='Search Image based on tag name' onChange={handleChange} />
+            {/* <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button> */}
+            <button onClick={handleReset} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>reset</button>
+            <div className={styles.mainWrapper}>
+                <h1 className={styles.Labelheading}>Unsplashed Gallery Design</h1>
+                <div className={styles.heading}>
+                    <h1>Upload New File</h1>
+                    <input type="file" className='addimg' placeholder='Add Card' multiple
+                        onChange={fileSelectedHandler}
+                        about='add image'
+                    />
                 </div>
-            )}
-        </div>
+
+                {loading === 'loading' ? (
+                    <div>Loading...</div>
+                ) : loading === 'failed' ? (
+                    <div>Error: {error}</div>
+                ) : (
+                    <div>
+                        <Row gutter={[50, 50]} className={styles.mainRow}>
+                            {
+                                listData?.map((item) => (
+                                    <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
+                                        <Card>
+                                            <div className={styles.cardBottom}>
+                                                <img src={item.url} height='100%' width='100%' />
+                                                <div className={styles.bottomSection}>
+                                                    <div className={styles.iconsWrapper}>
+                                                        <MoneyCollectOutlined className={styles.image} style={{ fontSize: 20 }} />
+                                                        <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
+                                                        <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
+                                                        <Dropdown
+                                                            menu={{ items }}
+                                                            placement="topLeft"
+                                                            arrow={{
+                                                                pointAtCenter: true,
+                                                            }}
+                                                        >
+                                                            <button style={{ backgroundColor: "#c93737", border: 'none' }} onClick={() => { openSetting(item.id) }} ><SettingOutlined className={styles.image} style={{ fontSize: 20 }} /></button >
+                                                        </Dropdown>
+                                                    </div>
+                                                    <div>
+                                                        <Badge
+                                                            count={item.tag}
+                                                        />
+                                                        <button>add tag</button>
+                                                        <button>remove tag</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                ))}
+                        </Row>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 
 export default Cards;
+
+
+
+{/* <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
+<Card className={styles.backgroundImage}>
+    <div className={styles.cardsWrapper} style={{ maxWidth: cardSize }} >
+        <img src={item.url ? item.url : sample1} alt="img" height="100%" width="100%" style={{ boxShadow: "0px 2px 10px 2px black", borderRadius: 5 }} />
+        <div className={styles.iconsWrapper}>
+            <MoneyCollectOutlined className={styles.image} style={{ fontSize: 20 }} />
+            <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
+            <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
+            <Dropdown
+                menu={{ items }}
+                placement="topLeft"
+                arrow={{
+                    pointAtCenter: true,
+                }}
+            >
+                <button style={{ backgroundColor: "#c93737", border: 'none' }} onClick={() => { openSetting(item.id) }} ><SettingOutlined className={styles.image} style={{ fontSize: 20 }} /></button >
+            </Dropdown>
+        </div>
+    </div>
+</Card>
+</Col> */}
