@@ -34,6 +34,7 @@ const Cards = () => {
     }, [loading]);
 
     const handleDelete = async (id) => {
+
         dispatch(deleteApiData(id))
         setTimeout(async () => {
             await fetchDataFromApi()
@@ -41,8 +42,10 @@ const Cards = () => {
     }
 
     useEffect(() => {
-        setListData(apiData)
-    }, [])
+        // Initialize listData with apiData
+        setListData(apiData);
+    }, [apiData]);
+
 
     const handleDownload = (id) => {
         console.log('id is ->', id)
@@ -133,35 +136,27 @@ const Cards = () => {
         setCurrCard(id)
     }
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         setInputValue(e.target.value)
-        const data = listData.filter((item, _) => {
-            return (
-                item.tag === inputValue
-            )
-        })
-        setListData(data)
 
     }
 
-    // const handleSubmit = () => {
-    //     console.log('inputValue --', inputValue)
-    //     const data = listData.filter((item, _) => {
-    //         return (
-    //             item.tag === inputValue
-    //         )
-    //     })
-    //     setListData(data)
-    //     setInputValue("")
-    // }
-    const handleReset = ()=>{
+    const handleSubmit = () => {
+        // Filter the data based on the inputValue
+        const data = apiData.filter((item) => {
+            return item.tag === inputValue;
+        });
+        setListData(data);
+    }
+
+    const handleReset = () => {
         setListData(apiData)
     }
 
     return (
         <>
             <input type='text' className={styles.inputField} name='ONE' value={inputValue} placeholder='Search Image based on tag name' onChange={handleChange} />
-            {/* <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button> */}
+            <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button>
             <button onClick={handleReset} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>reset</button>
             <div className={styles.mainWrapper}>
                 <h1 className={styles.Labelheading}>Unsplashed Gallery Design</h1>
@@ -181,7 +176,8 @@ const Cards = () => {
                     <div>
                         <Row gutter={[50, 50]} className={styles.mainRow}>
                             {
-                                listData?.map((item) => (
+                                Array.isArray(listData) &&
+                                    listData.map((item) => (
                                     <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
                                         <Card>
                                             <div className={styles.cardBottom}>
