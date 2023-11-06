@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+
 const initialState = {
     data: [],
     loading: 'idle',
@@ -52,6 +53,54 @@ const deleteApiData = createAsyncThunk('api/deleteData', async (id) => {
     return data;
 });
 
+
+// const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async (data) => {
+//     const response = await fetch(`http://localhost:8000/photos/`, {
+//         method: 'PUT',
+//         body:JSON.stringify({data})
+//     })
+
+//     if (!response.ok) {
+//         throw new Error('Error in response');
+//     }
+//     const responseData = await response.json();
+//     return responseData;
+// });
+
+// const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async ({id,height}) => {
+//     const response = await fetch(`http://localhost:8000/photos/${id}`, {
+//         method: 'PUT',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(height),
+//     });
+
+//     if (!response.ok) {
+//         throw new Error('Error in response');
+//     }
+//     const responseData = await response.json();
+//     return responseData;
+// });
+
+
+const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async ({ id, height }) => {
+    const response = await fetch(`http://localhost:8000/photos/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ height })
+    });
+
+    if (!response.ok) {
+        throw new Error('Error in response');
+    }
+    const responseData = await response.json();
+    return responseData;
+});
+
+
 const apiSlice = createSlice({
     name: 'api',
     initialState,
@@ -60,17 +109,10 @@ const apiSlice = createSlice({
             state.tag = [...state.tag, action.payload]
         },
         deleteLocalData: (state, action) => {
-            state.tag = state.tag.filter((items,index)=>{
-                return(items.tag !== action.payload)
+            state.tag = state.tag.filter((items, index) => {
+                return (items.tag !== action.payload)
             })
-        }
-        // if(action.type == "Add"){
-        //     state.tag = [...state.tag, action.payload.data]
-        // }else if(action.type == "Delete"){
-        //     state.tag = state.tag.filter((items,ind)=>{
-        //         return(items.tag !== action.payload.tag)
-        //     })
-        // }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -111,10 +153,25 @@ const apiSlice = createSlice({
             .addCase(deleteApiData.rejected, (state, action) => {
                 state.loading = 'failed';
                 state.error = action.error.message;
-            });
+            })
+
+            //updateHeightOfItem
+            .addCase(updateLocalDataSize.pending, (state) => {
+                state.loading = 'loading';
+                state.error = null;
+            })
+            .addCase(updateLocalDataSize.fulfilled, (state, action) => {
+                state.tag = action.payload
+                state.loading = 'succeeded';
+            })
+            .addCase(updateLocalDataSize.rejected, (state, action) => {
+                state.loading = 'failed';
+                state.error = action.error.message;
+            })
+
     },
 });
 
 export const { updateLocalData, deleteLocalData } = apiSlice.actions;
-export { fetchApiData, deleteApiData, addApiData };
+export { fetchApiData, deleteApiData, addApiData, updateLocalDataSize };
 export default apiSlice.reducer;

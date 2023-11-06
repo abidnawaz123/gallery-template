@@ -37,10 +37,9 @@
     border-radius: 5px;
     outline: none;
     border: none;
-    &:hover{
+    &:hover {
       background-color: #cbcdcf;
       color: #172c25;
-
     }
   }
   @media (max-width: 425px) {
@@ -80,75 +79,122 @@
         border: none;
       }
     }
-    .card {
-      cursor: pointer;
-      &:hover {
-        transform: scale(1, 1.009);
+  }
+  .card {
+    cursor: pointer;
+    &:hover {
+      transform: scale(1, 1.009);
+    }
+    .cardBottom {
+      img {
+        border-radius: 5px;
       }
-      .cardBottom {
-        img {
+      .bottomSection {
+        .iconsWrapper {
+          display: flex;
+          justify-content: space-evenly;
+          padding: 10px;
+          background: #0084ff;
           border-radius: 5px;
-        }
-        .bottomSection {
-          .iconsWrapper {
-            display: flex;
-            justify-content: space-evenly;
-            padding: 10px;
-            background: #0084ff;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            .image {
-              color: white;
-              background-color: #0084ff;
-              position: relative;
-              font-size: 20px;
-              &:hover {
-                background-color: #0359a8;
-              }
-            }
-          }
-          .buttonsSection {
-            display: flex;
-            gap: 10px;
-            @media (max-width: 768px) {
-              flex-direction: column;
-              gap: 10px;
-            }
-            .addTag {
-              background-color: #48efb1a8;
-              &:hover {
-                background-color: #236950;
-                color: white;
-              }
-            }
-            .removeTag {
-              background-color: #fdc1c1;
-              &:hover {
-                background-color: #eb8080;
-                color: white;
-              }
-            }
-            button {
-              padding: 10px;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              width: 50%;
-              @media (max-width: 768px) {
-                width: 100%;
-              }
+          margin-bottom: 10px;
+          .image {
+            color: white;
+            background-color: #0084ff;
+            position: relative;
+            font-size: 20px;
+            &:hover {
+              background-color: #0359a8;
             }
           }
         }
-        .badge {
-          position: absolute;
-          bottom: 111px;
-          left: 20px;
+        .buttonsSection {
+          display: flex;
+          gap: 10px;
           @media (max-width: 768px) {
-            bottom: 160px;
-            left: 30px;
+            flex-direction: column;
+            gap: 10px;
+          }
+          .addTag {
+            background-color: #48efb1a8;
+            &:hover {
+              background-color: #236950;
+              color: white;
+            }
+          }
+          .removeTag {
+            background-color: #fdc1c1;
+            &:hover {
+              background-color: #eb8080;
+              color: white;
+            }
+          }
+          button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 50%;
+            @media (max-width: 768px) {
+              width: 100%;
+            }
           }
         }
+      }
+      .badge {
+        position: absolute;
+        bottom: 111px;
+        left: 20px;
+        @media (max-width: 768px) {
+          bottom: 160px;
+          left: 30px;
+        }
+      }
+    }
+  }
+}
+.card {
+  :global(.ant-card-body) {
+    padding: 5px;
+  }
+  .cardBottom {
+    position: relative;
+    .badge {
+      position: absolute;
+      bottom: 130px;
+      left: 15px;
+      z-index: 10;
+    }
+    .bottomSection {
+      .iconsWrapper {
+        display: flex;
+        justify-content: space-between;
+        background-color: #0084ff;
+        .image {
+          background-color: #0084ff;
+          padding: 20px;
+          &:hover {
+            background-color: red;
+          }
+        }
+      }
+    }
+    .buttonsSection {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+      gap: 10px;
+      button {
+        padding: 10px 30px;
+        border-radius: 5px;
+        outline: none;
+        border: none;
+        &:hover {
+          background-color: #cbcdcf;
+          color: #172c25;
+        }
+      }
+      @media (max-width: 425px) {
+        flex-direction: column;
       }
     }
   }

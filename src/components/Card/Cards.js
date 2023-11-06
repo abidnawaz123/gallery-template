@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiData, deleteApiData, addApiData, updateLocalData, deleteLocalData } from '../redux/apiSlice';
+import { fetchApiData, deleteApiData, addApiData, updateLocalData, deleteLocalData, updateLocalDataSize } from '../redux/apiSlice';
 import { Badge, Card, Col, Dropdown, Row } from 'antd';
 import styles from "./style.module.scss"
 import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOutlined } from "@ant-design/icons"
 import { QqOutlined } from "@ant-design/icons"
 import { Link } from 'react-router-dom';
-import BasicMasonry from '../Masanory/Masanory';
+import Masonry from '@mui/lab/Masonry';
+
 
 const Cards = () => {
     const [cardSize, setCardSize] = useState("400px")
@@ -19,9 +20,6 @@ const Cards = () => {
     const apiData = useSelector(state => state.api.data);
     const loading = useSelector(state => state.api.loading);
     const error = useSelector(state => state.api.error);
-
-    const stateLocalData = useSelector((state) => state.api.tag)
-
 
     const galleryState = useSelector((state) => state.api.tag)
 
@@ -50,7 +48,6 @@ const Cards = () => {
     }
 
     useEffect(() => {
-        // Initialize listData with apiData
         setListData(apiData);
     }, [apiData]);
 
@@ -99,23 +96,21 @@ const Cards = () => {
     // }
 
     const smallCardSize = () => {
-        setCardSize("350px")
-        setCardSequence(true)
+        dispatch(updateLocalDataSize({ id: currCard, height: 300 }))
     }
 
     const mediumCardSize = () => {
-        setCardSize("400px")
+        dispatch(updateLocalDataSize({ id: currCard, height: 400 }))
     }
     const largeCardSize = () => {
-        setCardSize("450px")
-        setCardSequence(false)
+        dispatch(updateLocalDataSize({ id: currCard, height: 500 }))
     }
 
     const items = [
         {
             key: '1',
             label: (
-                <a onClick={smallCardSize}>
+                <a onClick={() => { smallCardSize() }}>
                     small
                 </a>
             ),
@@ -123,7 +118,7 @@ const Cards = () => {
         {
             key: '2',
             label: (
-                <a onClick={mediumCardSize}>
+                <a onClick={() => { mediumCardSize() }}>
                     medium
                 </a>
             ),
@@ -131,7 +126,7 @@ const Cards = () => {
         {
             key: '3',
             label: (
-                <a onClick={largeCardSize}>
+                <a onClick={() => { largeCardSize() }}>
                     large
                 </a>
             ),
@@ -179,7 +174,6 @@ const Cards = () => {
 
     const handleChange = async (e) => {
         setInputValue(e.target.value)
-
     }
 
     const handleSubmit = () => {
@@ -239,77 +233,62 @@ const Cards = () => {
                     <h1>Upload New File</h1>
                     <input type="file" name="photo" onChange={fileSelectedHandler} />
                 </div>
-
-                {loading === 'loading' ? (
-                    <div>Loading...</div>
-                ) : loading === 'failed' ? (
-                    <div>Error: {error}</div>
-                ) : (
-                    <div>
-                        <Row gutter={[30, 30]} className={styles.mainRow}>
-                            {
-                                Array.isArray(listData) &&
-                                listData.map((item) => (
-                                    <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
-                                        <Card className={styles.card}>
-                                            <div className={styles.cardBottom}>
-                                                <img src={item.url} height='100%' width='100%' style={!cardSequence ? { maxHeight: '400px' } : { maxHeight: '300px' }} />
-                                                <Badge className={styles.badge} color='darkseagreen' count={item.tag.toUpperCase()} />
-                                                <div className={styles.bottomSection}>
-                                                    <div className={styles.iconsWrapper}>
-                                                        <MoneyCollectOutlined className={styles.image} />
-                                                        <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} />
-                                                        <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} />
-                                                        <Dropdown
-                                                            menu={{ items }}
-                                                            placement="topLeft"
-                                                            arrow={{
-                                                                pointAtCenter: true,
-                                                            }}
-                                                        >
-                                                            <button style={{ border: 'none' }} onClick={() => { openSetting(item.id) }} >
-                                                                <SettingOutlined className={styles.image} /></button >
-                                                        </Dropdown>
-                                                    </div>
-                                                    <div className={styles.buttonsSection}>
-                                                        <button className={styles.addTag} onClick={() => { handleAddTag(item.tag) }}>Add</button>
-                                                        <button className={styles.removeTag} onClick={() => { removeItem(item.tag) }}>Remove</button>
-                                                    </div>
+            </div>
+            {
+                // loading === 'loading' ? (
+                //     <div>Loading...</div>
+                // ) : loading === 'failed' ? (
+                //     <div>Error: {error}</div>
+                // ) : 
+                (
+                    <Masonry
+                        columns={3}
+                        spacing={2}
+                        defaultColumns={4}
+                        defaultSpacing={1}
+                    >
+                        {
+                            Array.isArray(listData) &&
+                            listData.map((item) => {
+                                return (
+                                    <Card className={styles.card}>
+                                        <div className={styles.cardBottom}>
+                                            <img src={item.url} width='100%' height={`${item.height}px`}
+                                                style={{ objectFit: "cover" }}
+                                            // style={!cardSequence ? { maxHeight: '400px' } : { maxHeight: '300px' }}
+                                            />
+                                            <Badge className={styles.badge} color='darkseagreen' count={item.tag} />
+                                            <div className={styles.bottomSection}>
+                                                <div className={styles.iconsWrapper}>
+                                                    <MoneyCollectOutlined className={styles.image} style={{ cursor: 'pointer' }} />
+                                                    <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} />
+                                                    <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} />
+                                                    <Dropdown
+                                                        trigger={['click']}
+                                                        menu={{ items }}
+                                                        placement="topLeft"
+                                                        arrow={{
+                                                            pointAtCenter: true,
+                                                        }}
+                                                    >
+                                                        <button style={{ border: 'none' }} onClick={() => { openSetting(item.id) }} >
+                                                            <SettingOutlined className={styles.image} /></button >
+                                                    </Dropdown>
+                                                </div>
+                                                <div className={styles.buttonsSection}>
+                                                    <button className={styles.addTag} onClick={() => { handleAddTag(item.tag) }}>Add</button>
+                                                    <button className={styles.removeTag} onClick={() => { removeItem(item.tag) }}>Remove</button>
                                                 </div>
                                             </div>
-                                        </Card>
-                                    </Col>
-                                ))}
-                        </Row>
-                    </div>
+                                        </div>
+                                    </Card>
+                                )
+                            })}
+                    </Masonry>
                 )}
-            </div>
+            {/* </div> */}
         </>
     );
 };
 
 export default Cards;
-
-
-
-{/* <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
-<Card className={styles.backgroundImage}>
-    <div className={styles.cardsWrapper} style={{ maxWidth: cardSize }} >
-        <img src={item.url ? item.url : sample1} alt="img" height="100%" width="100%" style={{ boxShadow: "0px 2px 10px 2px black", borderRadius: 5 }} />
-        <div className={styles.iconsWrapper}>
-            <MoneyCollectOutlined className={styles.image} style={{ fontSize: 20 }} />
-            <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
-            <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
-            <Dropdown
-                menu={{ items }}
-                placement="topLeft"
-                arrow={{
-                    pointAtCenter: true,
-                }}
-            >
-                <button style={{ backgroundColor: "#c93737", border: 'none' }} onClick={() => { openSetting(item.id) }} ><SettingOutlined className={styles.image} style={{ fontSize: 20 }} /></button >
-            </Dropdown>
-        </div>
-    </div>
-</Card>
-</Col> */}
