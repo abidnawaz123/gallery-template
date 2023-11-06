@@ -5,33 +5,45 @@
   border-radius: 5px;
   border: none;
 }
-.galleryView{
+.galleryView {
   text-align: center;
-.listSection{
-  // margin: 30px 0;
-  position: relative;
-  cursor: pointer;
-  border-radius: 100%;
-  border: 1px solid transparent;
-  &:hover{
-    background-color: white;
-    color: chocolate;
-    border: 1px solid white;
-  }
-  .galleryLength{
-    color: red;
-    font-size: 20px;
-    top: 0;
-    position: absolute;
+  .listSection {
+    // margin: 30px 0;
+    position: relative;
+    cursor: pointer;
+    border-radius: 100%;
+    border: 1px solid transparent;
+    &:hover {
+      background-color: white;
+      color: chocolate;
+      border: 1px solid white;
+    }
+    .galleryLength {
+      color: red;
+      font-size: 20px;
+      top: -12px;
+      left: -7px;
+      position: absolute;
+    }
   }
 }
-}
-.actionButtons{
+.actionButtons {
   display: flex;
   justify-content: flex-end;
   margin-top: 30px;
-  gap: 5px;
-  @media(max-width:425px){
+  gap: 10px;
+  .button {
+    padding: 10px 30px;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    &:hover{
+      background-color: #cbcdcf;
+      color: #172c25;
+
+    }
+  }
+  @media (max-width: 425px) {
     flex-direction: column;
   }
 }
@@ -47,7 +59,7 @@
     margin: 30px 0px;
     flex-wrap: wrap;
     h1 {
-      @media(max-width:375px){
+      @media (max-width: 375px) {
         font-size: 25px;
       }
       color: white;
@@ -57,85 +69,87 @@
     }
   }
   .mainRow {
-    :global(.ant-col){
-      @media(max-width:375px){
+    :global(.ant-col) {
+      @media (max-width: 375px) {
         padding: 0 !important;
       }
-      :global(.ant-card){
-        background-color: rgba(255, 255, 255, .05);
+      :global(.ant-card) {
+        background-color: rgba(255, 255, 255, 0.05);
         padding: 10px;
         // border: 0.5px solid black;
         border: none;
       }
     }
-    .card{
+    .card {
       cursor: pointer;
-      &:hover{
-        transform: scale(1,1.009);
+      &:hover {
+        transform: scale(1, 1.009);
       }
-    .cardBottom {
-      img{
-        border-radius: 5px;
-      }
-      .bottomSection {
-        .iconsWrapper {
-          display: flex;
-          justify-content: space-evenly;
-          padding: 10px;
-          background: #0084ff;
+      .cardBottom {
+        img {
           border-radius: 5px;
-          margin-bottom: 10px;
-          .image {
-            color: white;
-            background-color: #0084ff;
-            position: relative;
-            font-size: 20px;
-          }
         }
-        .buttonsSection{
-          display: flex;
-          gap: 10px;
-          @media(max-width: 768px){
-            flex-direction: column;
+        .bottomSection {
+          .iconsWrapper {
+            display: flex;
+            justify-content: space-evenly;
+            padding: 10px;
+            background: #0084ff;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            .image {
+              color: white;
+              background-color: #0084ff;
+              position: relative;
+              font-size: 20px;
+              &:hover {
+                background-color: #0359a8;
+              }
+            }
+          }
+          .buttonsSection {
+            display: flex;
             gap: 10px;
-          }
-          .addTag{
-            background-color: #48efb1a8;
-            &:hover{
-              background-color: #236950;
-              color: white;
+            @media (max-width: 768px) {
+              flex-direction: column;
+              gap: 10px;
             }
-           }
-           .removeTag{
-            background-color: #fdc1c1;
-            &:hover{
-              background-color: #eb8080;
-              color: white;
+            .addTag {
+              background-color: #48efb1a8;
+              &:hover {
+                background-color: #236950;
+                color: white;
+              }
             }
-           }
-            button{
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          width: 50%;
-          @media(max-width: 768px){
-            width: 100%;
+            .removeTag {
+              background-color: #fdc1c1;
+              &:hover {
+                background-color: #eb8080;
+                color: white;
+              }
+            }
+            button {
+              padding: 10px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              width: 50%;
+              @media (max-width: 768px) {
+                width: 100%;
+              }
+            }
           }
-         }
-         
         }
-      }
-      .badge{
-        position: absolute;
-        bottom: 111px;
-        left: 20px;
-          @media(max-width: 768px){
+        .badge {
+          position: absolute;
+          bottom: 111px;
+          left: 20px;
+          @media (max-width: 768px) {
             bottom: 160px;
             left: 30px;
           }
+        }
       }
     }
   }
-}
 }

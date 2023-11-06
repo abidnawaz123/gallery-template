@@ -56,9 +56,21 @@ const apiSlice = createSlice({
     name: 'api',
     initialState,
     reducers: {
-        updateLocalData : (state,action)=>{
-            state.tag =[...state.tag,action.payload]
+        updateLocalData: (state, action) => {
+            state.tag = [...state.tag, action.payload]
         },
+        deleteLocalData: (state, action) => {
+            state.tag = state.tag.filter((items,index)=>{
+                return(items.tag !== action.payload)
+            })
+        }
+        // if(action.type == "Add"){
+        //     state.tag = [...state.tag, action.payload.data]
+        // }else if(action.type == "Delete"){
+        //     state.tag = state.tag.filter((items,ind)=>{
+        //         return(items.tag !== action.payload.tag)
+        //     })
+        // }
     },
     extraReducers: (builder) => {
         builder
@@ -103,6 +115,6 @@ const apiSlice = createSlice({
     },
 });
 
-export const {updateLocalData} = apiSlice.actions;
+export const { updateLocalData, deleteLocalData } = apiSlice.actions;
 export { fetchApiData, deleteApiData, addApiData };
 export default apiSlice.reducer;

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiData, deleteApiData, addApiData, updateLocalData } from '../redux/apiSlice';
-import {Badge, Card, Col, Dropdown, Row } from 'antd';
+import { fetchApiData, deleteApiData, addApiData, updateLocalData, deleteLocalData } from '../redux/apiSlice';
+import { Badge, Card, Col, Dropdown, Row } from 'antd';
 import styles from "./style.module.scss"
 import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOutlined } from "@ant-design/icons"
 import { QqOutlined } from "@ant-design/icons"
 import { Link } from 'react-router-dom';
+import BasicMasonry from '../Masanory/Masanory';
 
 const Cards = () => {
     const [cardSize, setCardSize] = useState("400px")
@@ -18,6 +19,9 @@ const Cards = () => {
     const apiData = useSelector(state => state.api.data);
     const loading = useSelector(state => state.api.loading);
     const error = useSelector(state => state.api.error);
+
+    const stateLocalData = useSelector((state) => state.api.tag)
+
 
     const galleryState = useSelector((state) => state.api.tag)
 
@@ -50,14 +54,49 @@ const Cards = () => {
         setListData(apiData);
     }, [apiData]);
 
+    const handleDownload = async (id) => {
+        // const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
-    const handleDownload = (id) => {
-        console.log('id is ->', id)
+        // const item = apiData.find((item) => item.id === id);
+
+        // if (item) {
+        //     if (item.serverImage) {
+        //         try {
+        //             const image = await fetch(`${proxyUrl}${item.url}`)
+        //             if (!image.ok) {
+        //                 throw new Error('Failed to fetch the image');
+        //             }
+
+        //             const imageBlob = await image.blob();
+        //             const imageURL = URL.createObjectURL(imageBlob);
+
+        //             const link = document.createElement('a');
+        //             link.href = imageURL;
+        //             link.download = item.tag;
+        //             document.body.appendChild(link);
+        //             link.click();
+        //             document.body.removeChild(link);
+        //         } catch (error) {
+        //             console.error('Error while downloading the image:', error);
+        //         }
+        //     } else {
+
         const filteredItem = apiData.filter((items, index) => {
             return (items.id === id)
         })
-        console.log('filtered Items --->>', filteredItem[0].url);
+        const image = await fetch(filteredItem[0].url)
+        const imageBlog = await image.blob()
+        const imageURL = URL.createObjectURL(imageBlog)
+
+        const link = document.createElement('a')
+        link.href = imageURL
+        link.download = filteredItem[0].tag
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
     }
+    // }
+    // }
 
     const smallCardSize = () => {
         setCardSize("350px")
@@ -144,18 +183,19 @@ const Cards = () => {
     }
 
     const handleSubmit = () => {
-        // Filter the data based on the inputValue
-        const data = apiData.filter((item) => {
-            return item.tag === inputValue;
-        });
-        setListData(data);
+        if (inputValue.trim() !== "") {
+            const data = apiData.filter((item) => {
+                return item.tag === inputValue;
+            });
+            setListData(data);
+            setInputValue("")
+        }
     }
 
     const handleReset = () => {
         setListData(apiData)
     }
     const handleAddTag = async (tags) => {
-
         const currTaggedItem = listData.filter((items, _) => {
             return items.tag == tags
         })
@@ -169,23 +209,35 @@ const Cards = () => {
             await fetchApiData()
         }, 1000)
     }
+    const removeItem = (tag) => {
+
+        const filteredArray = galleryState?.find((item, _) => item.tag === tag)
+        if (filteredArray == undefined || filteredArray == null || filteredArray == "") {
+            alert('this item is not available in gallery')
+
+        } else {
+            dispatch(deleteLocalData(tag))
+            alert(`Removed card from gallery with id : ${tag}`)
+        }
+    }
+
     return (
         <>
             <input type='text' className={styles.inputField} name='ONE' value={inputValue} placeholder='Search Image based on tag name' onChange={handleChange} />
             <div className={styles.actionButtons} >
-                <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button>
-                <button onClick={handleReset} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>reset</button>
+                <button onClick={handleSubmit} className={styles.button}>Search</button>
+                <button onClick={handleReset} className={styles.button}>Reset</button>
                 <Link to="/gallery" className={styles.galleryView}>
-                <button className={styles.listSection}>
-                    <QqOutlined style={{ fontSize: 40 }} />
-                    <span className={styles.galleryLength}>{galleryState?.length}</span>
-                </button>
-            </Link>
+                    <button className={styles.listSection}>
+                        <QqOutlined style={{ fontSize: 40 }} />
+                        <span className={styles.galleryLength}>{galleryState?.length}</span>
+                    </button>
+                </Link>
             </div>
             <div className={styles.mainWrapper}>
                 <div className={styles.heading}>
                     <h1>Upload New File</h1>
-                    <input type="file" name="photo" onChange={fileSelectedHandler}/>
+                    <input type="file" name="photo" onChange={fileSelectedHandler} />
                 </div>
 
                 {loading === 'loading' ? (
@@ -201,8 +253,8 @@ const Cards = () => {
                                     <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
                                         <Card className={styles.card}>
                                             <div className={styles.cardBottom}>
-                                                <img src={item.url} height='100%' width='100%'/>
-                                                <Badge className={styles.badge} color='darkseagreen' count={item.tag}/>
+                                                <img src={item.url} height='100%' width='100%' style={!cardSequence ? { maxHeight: '400px' } : { maxHeight: '300px' }} />
+                                                <Badge className={styles.badge} color='darkseagreen' count={item.tag.toUpperCase()} />
                                                 <div className={styles.bottomSection}>
                                                     <div className={styles.iconsWrapper}>
                                                         <MoneyCollectOutlined className={styles.image} />
@@ -221,7 +273,7 @@ const Cards = () => {
                                                     </div>
                                                     <div className={styles.buttonsSection}>
                                                         <button className={styles.addTag} onClick={() => { handleAddTag(item.tag) }}>Add</button>
-                                                        <button className={styles.removeTag}>Remove</button>
+                                                        <button className={styles.removeTag} onClick={() => { removeItem(item.tag) }}>Remove</button>
                                                     </div>
                                                 </div>
                                             </div>

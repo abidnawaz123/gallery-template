@@ -1,6 +1,42 @@
-.galleryWrapper{
-    margin: 50px;
-    @media(max-width:768px){
-        margin: 30px;
+.galleryWrapper {
+  :global(.ant-col) {
+    @media (max-width: 375px) {
+      padding: 0 !important;
     }
+    :global(.ant-card) {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      // border: 0.5px solid black;
+      border: none;
+    }
+  }
+  margin: 50px;
+  @media (max-width: 768px) {
+    margin: 30px;
+  }
+  .goBackBtn {
+    text-align: right;
+    margin-bottom: 30px;
+  }
+  .actionBtnWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .emptyData {
+    color: white;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 300px;
+    align-items: center;
+  }
+  :global(.ant-card-body) {
+    padding: 5px !important;
+  }
+  .images {
+    border-radius: 5px;
+  }
 }

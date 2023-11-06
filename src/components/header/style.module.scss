@@ -1,10 +1,31 @@
 .headerWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: rgb(39, 39, 63);
-  padding: 25px 0;
-  text-align: center;
+  padding: 25px 60px;
   color: white;
-  font-style: italic;
-  @media(min-width:375px){
-    font-size: 25px;
+  font-family: "Courier New", Courier, monospace;
+  .logo {
+    font-size: 40px;
+    border: 1px solid white;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 100%;
+    display: flex;
+    min-width: 60px;
+    background-color: #5accf2;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+      border: 1px solid black;
+    }
+  }
+  @media (max-width: 375px) {
+    font-size: 20px;
+    padding: 10px;
+  }
+  @media (max-width: 768px) {
+    flex-direction: column;
   }
 }
