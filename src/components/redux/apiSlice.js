@@ -4,6 +4,7 @@ const initialState = {
     data: [],
     loading: 'idle',
     error: null,
+    tag: [],
 };
 
 const fetchApiData = createAsyncThunk('api/fetchData', async () => {
@@ -51,14 +52,14 @@ const deleteApiData = createAsyncThunk('api/deleteData', async (id) => {
     return data;
 });
 
-
-
-
-
 const apiSlice = createSlice({
     name: 'api',
     initialState,
-    reducers: {},
+    reducers: {
+        updateLocalData : (state,action)=>{
+            state.tag =[...state.tag,action.payload]
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchApiData.pending, (state) => {
@@ -102,5 +103,6 @@ const apiSlice = createSlice({
     },
 });
 
+export const {updateLocalData} = apiSlice.actions;
 export { fetchApiData, deleteApiData, addApiData };
 export default apiSlice.reducer;

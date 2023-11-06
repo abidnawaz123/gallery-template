@@ -1,6 +1,10 @@
 .headerWrapper {
   background-color: rgb(39, 39, 63);
-  padding: 70px 0;
+  padding: 25px 0;
   text-align: center;
   color: white;
+  font-style: italic;
+  @media(min-width:375px){
+    font-size: 25px;
+  }
 }

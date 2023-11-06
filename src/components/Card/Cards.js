@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiData, deleteApiData, addApiData } from '../redux/apiSlice';
-import { Alert, Badge, Button, Card, Col, Dropdown, Row, Upload } from 'antd';
-import sample1 from "../../assets/images/sample.png"
+import { fetchApiData, deleteApiData, addApiData, updateLocalData } from '../redux/apiSlice';
+import {Badge, Card, Col, Dropdown, Row } from 'antd';
 import styles from "./style.module.scss"
 import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOutlined } from "@ant-design/icons"
+import { QqOutlined } from "@ant-design/icons"
+import { Link } from 'react-router-dom';
 
 const Cards = () => {
     const [cardSize, setCardSize] = useState("400px")
@@ -17,6 +18,9 @@ const Cards = () => {
     const apiData = useSelector(state => state.api.data);
     const loading = useSelector(state => state.api.loading);
     const error = useSelector(state => state.api.error);
+
+    const galleryState = useSelector((state) => state.api.tag)
+
 
 
     const fetchDataFromApi = async () => {
@@ -53,12 +57,9 @@ const Cards = () => {
             return (items.id === id)
         })
         console.log('filtered Items --->>', filteredItem[0].url);
-
     }
 
-
     const smallCardSize = () => {
-        setCurrCard()
         setCardSize("350px")
         setCardSequence(true)
     }
@@ -124,6 +125,7 @@ const Cards = () => {
                     title: "Man whom woman produce may rule his man born choose few century",
                     id: Math.floor(Math.random()),
                     user: Math.random(),
+                    tag: `tag${Math.floor(Math.random() * 30 + 5)}`
                 }));
             };
             reader.readAsDataURL(file);
@@ -152,20 +154,38 @@ const Cards = () => {
     const handleReset = () => {
         setListData(apiData)
     }
+    const handleAddTag = async (tags) => {
 
+        const currTaggedItem = listData.filter((items, _) => {
+            return items.tag == tags
+        })
+        const data = {
+            id: currTaggedItem[0].id,
+            tag: currTaggedItem[0].tag,
+            url: currTaggedItem[0].url,
+        }
+        dispatch(updateLocalData(data))
+        setTimeout(async () => {
+            await fetchApiData()
+        }, 1000)
+    }
     return (
         <>
             <input type='text' className={styles.inputField} name='ONE' value={inputValue} placeholder='Search Image based on tag name' onChange={handleChange} />
-            <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button>
-            <button onClick={handleReset} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>reset</button>
+            <div className={styles.actionButtons} >
+                <button onClick={handleSubmit} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>search</button>
+                <button onClick={handleReset} style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 20, paddingLeft: 20 }}>reset</button>
+                <Link to="/gallery" className={styles.galleryView}>
+                <button className={styles.listSection}>
+                    <QqOutlined style={{ fontSize: 40 }} />
+                    <span className={styles.galleryLength}>{galleryState?.length}</span>
+                </button>
+            </Link>
+            </div>
             <div className={styles.mainWrapper}>
-                <h1 className={styles.Labelheading}>Unsplashed Gallery Design</h1>
                 <div className={styles.heading}>
                     <h1>Upload New File</h1>
-                    <input type="file" className='addimg' placeholder='Add Card' multiple
-                        onChange={fileSelectedHandler}
-                        about='add image'
-                    />
+                    <input type="file" name="photo" onChange={fileSelectedHandler}/>
                 </div>
 
                 {loading === 'loading' ? (
@@ -174,19 +194,20 @@ const Cards = () => {
                     <div>Error: {error}</div>
                 ) : (
                     <div>
-                        <Row gutter={[50, 50]} className={styles.mainRow}>
+                        <Row gutter={[30, 30]} className={styles.mainRow}>
                             {
                                 Array.isArray(listData) &&
-                                    listData.map((item) => (
+                                listData.map((item) => (
                                     <Col xs={24} sm={12} md={!cardSequence ? 8 : 6} key={item.id}>
-                                        <Card>
+                                        <Card className={styles.card}>
                                             <div className={styles.cardBottom}>
-                                                <img src={item.url} height='100%' width='100%' />
+                                                <img src={item.url} height='100%' width='100%'/>
+                                                <Badge className={styles.badge} color='darkseagreen' count={item.tag}/>
                                                 <div className={styles.bottomSection}>
                                                     <div className={styles.iconsWrapper}>
-                                                        <MoneyCollectOutlined className={styles.image} style={{ fontSize: 20 }} />
-                                                        <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
-                                                        <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} style={{ fontSize: 20 }} />
+                                                        <MoneyCollectOutlined className={styles.image} />
+                                                        <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} />
+                                                        <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} />
                                                         <Dropdown
                                                             menu={{ items }}
                                                             placement="topLeft"
@@ -194,15 +215,13 @@ const Cards = () => {
                                                                 pointAtCenter: true,
                                                             }}
                                                         >
-                                                            <button style={{ backgroundColor: "#c93737", border: 'none' }} onClick={() => { openSetting(item.id) }} ><SettingOutlined className={styles.image} style={{ fontSize: 20 }} /></button >
+                                                            <button style={{ border: 'none' }} onClick={() => { openSetting(item.id) }} >
+                                                                <SettingOutlined className={styles.image} /></button >
                                                         </Dropdown>
                                                     </div>
-                                                    <div>
-                                                        <Badge
-                                                            count={item.tag}
-                                                        />
-                                                        <button>add tag</button>
-                                                        <button>remove tag</button>
+                                                    <div className={styles.buttonsSection}>
+                                                        <button className={styles.addTag} onClick={() => { handleAddTag(item.tag) }}>Add</button>
+                                                        <button className={styles.removeTag}>Remove</button>
                                                     </div>
                                                 </div>
                                             </div>
