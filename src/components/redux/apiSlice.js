@@ -84,20 +84,41 @@ const deleteApiData = createAsyncThunk('api/deleteData', async (id) => {
 // });
 
 
-const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async ({ id, height }) => {
-    const response = await fetch(`http://localhost:8000/photos/${id}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ height })
-    });
+// const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async ({ id, height }) => {
+//     const response = await fetch(`http://localhost:8000/photos/${id}`, {
+//         method: 'PATCH',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ height })
+//     });
 
-    if (!response.ok) {
-        throw new Error('Error in response');
+//     if (!response.ok) {
+//         throw new Error('Error in response');
+//     }
+//     const responseData = await response.json();
+//     return responseData;
+// });
+
+const updateLocalDataSize = createAsyncThunk('api/updateItemHeight', async ({ id, height }) => {
+    try {
+        const response = await fetch(`http://localhost:8000/photos/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ height }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error in response');
+        }
+
+        // You should not update `state.tag` but rather update the specific card in `state.data`
+        return { id, height };
+    } catch (error) {
+        throw error;
     }
-    const responseData = await response.json();
-    return responseData;
 });
 
 
@@ -161,9 +182,20 @@ const apiSlice = createSlice({
                 state.error = null;
             })
             .addCase(updateLocalDataSize.fulfilled, (state, action) => {
-                state.tag = action.payload
+                const { id, height } = action.payload;
+                const updatedData = state.data.map((item) => {
+                    if (item.id === id) {
+                        return {
+                            ...item,
+                            height: height,
+                        };
+                    }
+                    return item;
+                });
+                state.data = updatedData;
                 state.loading = 'succeeded';
             })
+        
             .addCase(updateLocalDataSize.rejected, (state, action) => {
                 state.loading = 'failed';
                 state.error = action.error.message;

@@ -7,6 +7,7 @@ import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOut
 import { QqOutlined } from "@ant-design/icons"
 import { Link } from 'react-router-dom';
 import Masonry from '@mui/lab/Masonry';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 const Cards = () => {
@@ -15,6 +16,23 @@ const Cards = () => {
     const [currCard, setCurrCard] = useState("")
     const [listData, setListData] = useState(null)
     const [inputValue, setInputValue] = useState("")
+
+    const isSmallScreen = useMediaQuery('(max-width:600px)');
+    const isMediumScreen = useMediaQuery('(max-width:900px)');
+    const isLargeScreen = useMediaQuery('(max-width:901px)');
+    const newcol = ()=>{
+        if(isSmallScreen){
+            console.log('1')
+            return 1
+        }else if(isMediumScreen){
+            console.log('2')
+            return 2
+        }else{
+            return 3
+        }
+    }
+    const columns = newcol();
+    const spacing = isSmallScreen ? 8 : 2;
 
     const dispatch = useDispatch();
     const apiData = useSelector(state => state.api.data);
@@ -242,10 +260,12 @@ const Cards = () => {
                 // ) : 
                 (
                     <Masonry
-                        columns={3}
-                        spacing={2}
-                        defaultColumns={4}
-                        defaultSpacing={1}
+                    className={styles.customMasnoryClass}
+                    columns={columns} spacing={spacing} defaultColumns={4} defaultSpacing={1}
+                        // columns={3}
+                        // spacing={2}
+                        // defaultColumns={4}
+                        // defaultSpacing={1}
                     >
                         {
                             Array.isArray(listData) &&
@@ -255,7 +275,6 @@ const Cards = () => {
                                         <div className={styles.cardBottom}>
                                             <img src={item.url} width='100%' height={`${item.height}px`}
                                                 style={{ objectFit: "cover" }}
-                                            // style={!cardSequence ? { maxHeight: '400px' } : { maxHeight: '300px' }}
                                             />
                                             <Badge className={styles.badge} color='darkseagreen' count={item.tag} />
                                             <div className={styles.bottomSection}>
@@ -286,7 +305,6 @@ const Cards = () => {
                             })}
                     </Masonry>
                 )}
-            {/* </div> */}
         </>
     );
 };
