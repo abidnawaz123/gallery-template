@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiData, deleteApiData, addApiData, updateLocalData, deleteLocalData, updateLocalDataSize } from '../redux/apiSlice';
+import { fetchApiData, addApiData, deleteLocalData, updateLocalDataSize, deleteCurrData, addLocalData, updateDataApi, updateDisabledState, deleteApiData, addGalleryData, fetchGalleryData } from '../redux/apiSlice';
 import { Badge, Card, Col, Dropdown, Row } from 'antd';
 import styles from "./style.module.scss"
 import { MoneyCollectOutlined, DeleteOutlined, SettingOutlined, CloudDownloadOutlined } from "@ant-design/icons"
@@ -8,6 +8,9 @@ import { QqOutlined } from "@ant-design/icons"
 import { Link } from 'react-router-dom';
 import Masonry from '@mui/lab/Masonry';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import ChipsArray from '../Tags/tags';
+import CustomDropDown from '../dropDown/DropDown';
+import { Chip } from '@mui/material';
 
 
 const Cards = () => {
@@ -20,14 +23,14 @@ const Cards = () => {
     const isSmallScreen = useMediaQuery('(max-width:600px)');
     const isMediumScreen = useMediaQuery('(max-width:900px)');
     const isLargeScreen = useMediaQuery('(max-width:901px)');
-    const newcol = ()=>{
-        if(isSmallScreen){
+    const newcol = () => {
+        if (isSmallScreen) {
             console.log('1')
             return 1
-        }else if(isMediumScreen){
+        } else if (isMediumScreen) {
             console.log('2')
             return 2
-        }else{
+        } else {
             return 3
         }
     }
@@ -40,8 +43,19 @@ const Cards = () => {
     const error = useSelector(state => state.api.error);
 
     const galleryState = useSelector((state) => state.api.tag)
+    const galleryData = useSelector(state => state.api.galleryData)
 
+    const fetchGalleryDataFromApi = async () => {
+        try {
+            await dispatch(fetchGalleryData());
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
+    useEffect(() => {
+        fetchGalleryDataFromApi()
+    }, [])
 
     const fetchDataFromApi = async () => {
         try {
@@ -57,12 +71,10 @@ const Cards = () => {
         }
     }, [loading]);
 
-    const handleDelete = async (id) => {
-
+    const handleDelete = async (tag, id) => {
         dispatch(deleteApiData(id))
-        setTimeout(async () => {
-            await fetchDataFromApi()
-        }, 1000)
+        dispatch(updateDisabledState({ id: id, disabled: true }))
+        dispatch(fetchApiData())
     }
 
     useEffect(() => {
@@ -207,21 +219,34 @@ const Cards = () => {
     const handleReset = () => {
         setListData(apiData)
     }
-    const handleAddTag = async (tags) => {
+    const handleAddTag = async (item) => {
+
+        const { id, tag, url, user } = item;
+
+        dispatch(addGalleryData({
+            description: "Abid",
+            title: "Man whom woman produce may rule his man born choose few century",
+            url: url,
+            id: id,
+            user: user,
+            tag: tag,
+            disabled: true
+        }));
+
+
         const currTaggedItem = listData.filter((items, _) => {
-            return items.tag == tags
+            return items.tag == tag
         })
         const data = {
             id: currTaggedItem[0].id,
             tag: currTaggedItem[0].tag,
             url: currTaggedItem[0].url,
         }
-        dispatch(updateLocalData(data))
-        setTimeout(async () => {
-            await fetchApiData()
-        }, 1000)
+        dispatch(updateDisabledState({ id: id, disabled: false }))
+        dispatch(addLocalData(data))
+        dispatch(fetchApiData())
     }
-    const removeItem = (tag) => {
+    const removeItem = (tag, id) => {
 
         const filteredArray = galleryState?.find((item, _) => item.tag === tag)
         if (filteredArray == undefined || filteredArray == null || filteredArray == "") {
@@ -229,9 +254,34 @@ const Cards = () => {
 
         } else {
             dispatch(deleteLocalData(tag))
+            dispatch(updateDisabledState({ id: id, disabled: true }))
             alert(`Removed card from gallery with id : ${tag}`)
+            dispatch(fetchApiData())
         }
     }
+
+    const deleteTag = () => {
+        console.log('deletedTag')
+    }
+
+    const DataForChip = [
+        {
+            label: 'Nature',
+            key: '1',
+        },
+        {
+            label: 'City',
+            key: '2',
+        },
+        {
+            label: 'Work',
+            key: '3',
+        },
+        {
+            label: 'Internet',
+            key: '4',
+        },
+    ];
 
     return (
         <>
@@ -242,7 +292,7 @@ const Cards = () => {
                 <Link to="/gallery" className={styles.galleryView}>
                     <button className={styles.listSection}>
                         <QqOutlined style={{ fontSize: 40 }} />
-                        <span className={styles.galleryLength}>{galleryState?.length}</span>
+                        <span className={styles.galleryLength}>{galleryData.length}</span>
                     </button>
                 </Link>
             </div>
@@ -260,16 +310,17 @@ const Cards = () => {
                 // ) : 
                 (
                     <Masonry
-                    className={styles.customMasnoryClass}
-                    columns={columns} spacing={spacing} defaultColumns={4} defaultSpacing={1}
-                        // columns={3}
-                        // spacing={2}
-                        // defaultColumns={4}
-                        // defaultSpacing={1}
+                        className={styles.customMasnoryClass}
+                        columns={columns} spacing={spacing} defaultColumns={4} defaultSpacing={1}
+                    // columns={3}
+                    // spacing={2}
+                    // defaultColumns={4}
+                    // defaultSpacing={1}
                     >
                         {
                             Array.isArray(listData) &&
                             listData.map((item) => {
+                                // console.log('item i ',item)
                                 return (
                                     <Card className={styles.card}>
                                         <div className={styles.cardBottom}>
@@ -277,11 +328,35 @@ const Cards = () => {
                                                 style={{ objectFit: "cover" }}
                                             />
                                             <Badge className={styles.badge} color='darkseagreen' count={item.tag} />
+                                            <div>
+                                                {/* {currItem} */}
+                                            </div>
+                                            {/* {
+                                                DataForChip.map((system,ind)=>{
+                                                    return(
+                                                        <Chip label={system.label}/>
+                                                    )
+                                                })
+                                            } */}
+                                            {
+                                                item?.data?.map((chips, ind) => {
+                                                    return (
+                                                        <Chip
+                                                            label={chips.label}
+                                                        />
+                                                    )
+                                                })
+                                            }
+                                            <Chip
+                                                // icon={icon}
+                                                label={item.data?.label}
+                                            // onDelete={data.label === 'React' ? undefined : handleDelete(data)}
+                                            />
                                             <div className={styles.bottomSection}>
                                                 <div className={styles.iconsWrapper}>
                                                     <MoneyCollectOutlined className={styles.image} style={{ cursor: 'pointer' }} />
                                                     <CloudDownloadOutlined onClick={() => { handleDownload(item.id) }} className={styles.image} />
-                                                    <DeleteOutlined onClick={() => { handleDelete(item.id) }} className={styles.image} />
+                                                    <DeleteOutlined onClick={() => { handleDelete(item.tag, item.id) }} className={styles.image} />
                                                     <Dropdown
                                                         trigger={['click']}
                                                         menu={{ items }}
@@ -294,11 +369,18 @@ const Cards = () => {
                                                             <SettingOutlined className={styles.image} /></button >
                                                     </Dropdown>
                                                 </div>
-                                                <div className={styles.buttonsSection}>
-                                                    <button className={styles.addTag} onClick={() => { handleAddTag(item.tag) }}>Add</button>
-                                                    <button className={styles.removeTag} onClick={() => { removeItem(item.tag) }}>Remove</button>
-                                                </div>
+                                                {/* <div className={styles.buttonsSection}>
+                                                    <button className={styles.addTag} onClick={() => { handleAddTag(item) }}
+                                                    // disabled={!item.disabled}
+                                                    >Add</button>
+                                                    <button className={styles.removeTag} onClick={() => { removeItem(item.tag, item.id) }}
+                                                    //  disabled={item.disabled}
+                                                    >Remove</button>
+                                                </div> */}
                                             </div>
+                                        </div>
+                                        <div>
+                                            <CustomDropDown currentId={item.id} />
                                         </div>
                                     </Card>
                                 )
